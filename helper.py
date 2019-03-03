@@ -1,15 +1,15 @@
 import string
 from string import ascii_lowercase
 
-def ceasarCipher(plaintext, shift):
+def ceasarCipher(msg_txt, shift):
     """ Simple Ceasar cipher used to illustrate key encryption. """
     alphabet = string.ascii_lowercase
-
+    
     shifted_alphabet = alphabet[shift:] + alphabet[:shift]
-
+    
     table = string.maketrans(alphabet, shifted_alphabet)
-
-    return plaintext.translate(table)
+    
+    return msg_txt.translate(table)
 
 def readCert(cert,shift):
     """ Check server certificate. If valid, return true. If not return false """
@@ -30,13 +30,14 @@ def readCert(cert,shift):
 
 def main():
     """ Test the helper functions """
-    server_cert = "I am Simple Server"
+    server_cert = "I am Simple Server!"
     shift = 1
     encoded_cert = ceasarCipher(server_cert,shift)
-    print(readCert(encoded_cert,shift))
-
-    print("Encoded Cert: ", ceasarCipher(server_cert,shift))
-    print("Dencoded Cert: ", ceasarCipher(encoded_cert,shift))
+    
+    print("Msg to encode: ", server_cert)
+    print("Encoded Msg: ", ceasarCipher(server_cert,shift))
+    print("Decoded Msg: ", ceasarCipher(encoded_cert,-shift))
+    print('Return value of readCert()', readCert(encoded_cert,shift))
 
 if __name__ == '__main__':
     main()
