@@ -1,12 +1,13 @@
 import socket
 import helper
 from helper import ceasarCipher
+import json
 
 class SimpleServer:
     """
     This class creates a simple socket server that listens on a specific port.
     """    
-    def __init__( self, host = '127.0.0.1', port = 9000 ):        
+    def __init__( self, host = '127.0.0.1', port = 9500 ):        
         self._host = host
         self._port = port
             
@@ -42,9 +43,10 @@ class SimpleServer:
                             data = conn.recv( 1024 )
                             if data == b'Hello':                        
                                 print( "Server received '{0}'".format(data.decode()) )
-                                print( "Server sending back - 'Hi' response" )
-                                # send thank you msg
-                                conn.sendall(b'Hi')                    
+                                print( "Server sending back - Certificate" )
+                                # send Cert
+                                server_cert = self.getCert()
+                                conn.sendall(server_cert.encode('utf-8'))                    
                             else:
                                 print( "Server received '{0}'".format(data.decode()) )
                                 print( "Server sending back - 'Goodbye' response" )
@@ -54,10 +56,6 @@ class SimpleServer:
                     print("Connection closed ..")                    
                     conn.close()
 
-                    # TODO: Need a better way to shutdown server without interrupting listening feature.
-                    # exit_input = input("Do you want to exit/shutdown the server (y/n): ")
-                    # if self.shutdown_server():
-                    #     break
         except socket.error as err:
             print("Socket use error: \n {0}".format(err))           
         
@@ -66,9 +64,10 @@ class SimpleServer:
         sock.close()
     
 
-    def createCert(self):
+    def getCert(self):
         """ Create a mock certificate used by this server """
-        server_cert = "I am Simple Server"
+        
+        return "CA: I am Simple Server Certificate"
         
 
     def shutdown_server( self ):
