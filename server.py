@@ -1,10 +1,12 @@
 import socket
+import helper
+from helper import ceasarCipher
 
 class SimpleServer:
     """
-    This class c creates a simple socket server that listens on a specific port.
+    This class creates a simple socket server that listens on a specific port.
     """    
-    def __init__( self, host = '127.0.0.1', port = 9500 ):        
+    def __init__( self, host = '127.0.0.1', port = 9000 ):        
         self._host = host
         self._port = port
             
@@ -20,43 +22,55 @@ class SimpleServer:
         sock = self.create_socket()
         print("Socket created...")
 
-        with sock:
-            # bind to port
-            sock.bind( (self._host, self._port) )
-            print("Socket bound to ", self._host)
-
-            while True:
-                sock.listen(5)
-                print("Server is listening on port ", self._port)
                 
-                conn, addr = sock.accept()
+        try:            
+            with sock:
+                # bind to port
+                sock.bind( (self._host, self._port) )
+                print("Socket bound to ", self._host)
 
-                #Establish client connection
-                print("Got connection from ", addr)
-                with conn:
-                    while True:
-                        data = conn.recv( 1024 )
-                        if data == b'Hello':                        
-                            print( "Server received '{0}'".format(data.decode()) )
-                            print( "Server sending back - 'Hi' response" )
-                            # send thank you msg
-                            conn.sendall(b'Hi')                    
-                        else:
-                            print( "Server received '{0}'".format(data.decode()) )
-                            print( "Server sending back - 'Goodbye' response" )
-                            print()
-                            conn.sendall(b'Goodbye')  
-                            break  
-                conn.close()
+                while True:
+                    sock.listen(5)
+                    print("Server is listening on port ", self._port)
+                    
+                    conn, addr = sock.accept()
 
-                # TODO: Need a better way to shutdown server without interrupting listening feature.
-                # exit_input = input("Do you want to exit/shutdown the server (y/n): ")
-                # if self.shutdown_server():
-                #     break
-                
-            sock.close()
+                    #Establish client connection
+                    print("Got connection from ", addr)
+                    with conn:
+                        while True:
+                            data = conn.recv( 1024 )
+                            if data == b'Hello':                        
+                                print( "Server received '{0}'".format(data.decode()) )
+                                print( "Server sending back - 'Hi' response" )
+                                # send thank you msg
+                                conn.sendall(b'Hi')                    
+                            else:
+                                print( "Server received '{0}'".format(data.decode()) )
+                                print( "Server sending back - 'Goodbye' response" )
+                                print()
+                                conn.sendall(b'Goodbye')  
+                                break  
+                    print("Connection closed ..")                    
+                    conn.close()
+
+                    # TODO: Need a better way to shutdown server without interrupting listening feature.
+                    # exit_input = input("Do you want to exit/shutdown the server (y/n): ")
+                    # if self.shutdown_server():
+                    #     break
+        except socket.error as err:
+            print("Socket use error: \n {0}".format(err))           
+        
+        
         print("Server shutting down ...")
+        sock.close()
     
+
+    def createCert(self):
+        """ Create a mock certificate used by this server """
+        server_cert = "I am Simple Server"
+        
+
     def shutdown_server( self ):
         exit_input = input("Do you want to exit/shutdown the server (y/n): ")
         decision = False
