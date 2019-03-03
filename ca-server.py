@@ -40,24 +40,35 @@ class CertServer:
                     with conn:
                         while True:
                             data = conn.recv( 1024 )
-                            if data == b'Hello':                        
-                                print( "Server received '{0}'".format(data.decode()) )
-                                print( "Server sending back - 'Hi' response" )
-                                # send thank you msg
-                                conn.sendall(b'Hi')                    
+                            msg_recieved = data.decode()
+                            # If msg is a certificate, check if it's valid.
+                            if msg_recieved.find("CA:") > -1:
+                                print("Certificate received. Checking validity ...")
+                                cert_valid = self.checkCertValidity(msg_recieved)     
+                                if cert_valid == True:
+                                    print( "Server received a VALID certificate '{0}'".format(data.decode()) )
+                                    print( "Server sending back - Server's Public Key...." )                                    
+                                    conn.sendall(b'Cert Public Key...')  
+                                else:
+                                    print( "Server received INVALID '{0}'".format(data.decode()) )
+                                    print( "Server sending back - 'False' response" )
+                                    print()
+                                    conn.sendall(b'INVALID')  
+                                    break
+                            elif data == b'':
+                                print("No data ...")
+                                break
                             else:
-                                print( "Server received '{0}'".format(data.decode()) )
-                                print( "Server sending back - 'Goodbye' response" )
+                                print( "CA Server received '{0}'".format(data.decode()) )
+                                print( "CA Server sending back - 'Goodbye' response" )
                                 print()
                                 conn.sendall(b'Goodbye')  
                                 break  
+                              
                     print("Connection closed ..")                    
                     conn.close()
 
-                    # TODO: Need a better way to shutdown server without interrupting listening feature.
-                    # exit_input = input("Do you want to exit/shutdown the server (y/n): ")
-                    # if self.shutdown_server():
-                    #     break
+                
         except socket.error as err:
             print("Socket use error: \n {0}".format(err))           
         
@@ -65,8 +76,17 @@ class CertServer:
         print("Server shutting down ...")
         sock.close()
     
+    def checkCertValidity(self, cert):
+        """ Check if mock certificate is valid """
 
-    def readCert(self, cert):
+        cert_validity = False
+
+        if cert == 'CA: I am Simple Server Certificate':  
+            cert_validity = True
+        
+        return cert_validity
+   
+    def readCert(self,cert,shift):
         """ Check server certificate. If valid, return true. If not return false """
         
         server_cert = "I am Simple Server"
@@ -74,7 +94,7 @@ class CertServer:
         decipher_cert = ceasarCipher(cert, -shift)
         
         result = False
-
+        
         if server_cert == decipher_cert:
             result = True
         else:
@@ -95,8 +115,8 @@ def display_helper(msg):
 
 if __name__ == "__main__":
     # Create simple server
-    host = '127.0.0.1'
-    port = 9500
-    simple_server = SimpleServer( host, port )
+    host = '127.0.2.1'
+    port = 9000
+    cert_server = CertServer( host, port )
     # Open connection
-    simple_server.start_server()
+    cert_server.start_server()
