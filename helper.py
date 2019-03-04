@@ -1,3 +1,4 @@
+import random, string
 
 def simpleCipher(msg, shift, key):
     """ 
@@ -52,6 +53,12 @@ def readCert(cert,shift):
 
     return result
 
+def randomString(length):
+    """ Generate a random string with set length
+        @length = Length or string returned.
+    """
+    alphabet = string.ascii_letters
+    return ''.join( random.choice(alphabet) for i in range(length) )
 
 def main():
     """ Test the helper functions """
@@ -65,16 +72,25 @@ def main():
     print( "Cert: = " + server_cert )
     print("Encrypted = " + simpleCipher(server_cert,1,'e') )
     print( "Decrypted = " + simpleCipher( simpleCipher(server_cert,1,'e') ,1,'d') )
-    
-    # print( "Cert: = " + server_cert )
-    # print( "Cert Public Key: " + server_public_key )
-    # shift = 1
-    # encoded_cert = ceasarCipher(server_cert,shift)
-    
-    # print( "Msg to encode: " + server_cert )
-    # print( "Encoded Msg: " + ceasarCipher(server_cert,shift) )
-    # print( "Decoded Msg: " + ceasarCipher(encoded_cert,-shift) )
-    # print( 'Return value of readCert(): ' + str(readCert(encoded_cert,shift)) )
+
+    print("*************** TEST Secret Decipher ***************")
+    secret = "Tfswfs Qvcmjd Lfz~Uijt jt Dmjfou Tfdsfu"
+    secret_array = certificate.split("~")
+    server_key = cert_array[0]
+    client_secret = cert_array[1]
+
+    print( "Secret: = " + secret )
+    print( "Key Decrypted = " + simpleCipher(server_key,1,'d') )
+    print( "Secret Decrypted = " + simpleCipher(client_secret,1,'d') )
+    print( "Key+Secret Decrypted = " + simpleCipher( secret,1,'d') )
+
+    print("*************** TEST Random String Generator ***************")
+    print( randomString(5) )
+    print( randomString(5) )
+    print( randomString(6) )
+    print( randomString(6) )
+    print( randomString(7) )
+    print( randomString(7) )
 
 if __name__ == '__main__':
     main()
