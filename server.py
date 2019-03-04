@@ -1,7 +1,6 @@
 import socket
 import helper
-from helper import ceasarCipher
-import json
+from helper import simpleCipher
 
 class SimpleServer:
     """
@@ -43,9 +42,9 @@ class SimpleServer:
                             data = conn.recv( 1024 )
                             if data == b'Hello':                        
                                 print( "Server received '{0}'".format(data.decode()) )
-                                print( "Server sending back - Certificate" )
-                                # send Cert
-                                server_cert = self.getCert()
+                                print( "Server sending back - Certificate + Public Key" )
+                                # Put Cert + Public Key together and encrypt                                
+                                server_cert = simpleCipher( self.compileCertificate(),1,'e' )                               
                                 conn.sendall(server_cert.encode('utf-8'))                    
                             else:
                                 print( "Server received '{0}'".format(data.decode()) )
@@ -66,9 +65,18 @@ class SimpleServer:
 
     def getCert(self):
         """ Create a mock certificate used by this server """
-        
+
         return "CA: I am Simple Server Certificate"
-        
+
+    def getPublicKey(self):
+        """ Create a simple string to represent the public key"""
+
+        return "Server Public Key"  
+
+    def compileCertificate(self):
+         """ Put together both the Certificate and Public Key """
+
+         return  self.getCert() + "~" + self.getPublicKey()
 
     def shutdown_server( self ):
         exit_input = input("Do you want to exit/shutdown the server (y/n): ")
