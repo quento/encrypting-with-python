@@ -61,17 +61,24 @@ class SimpleServer:
                                     conn.sendall(b'Goodbye')  
                                     break 
                                 else:
-                                    print( "Server received '{0}'".format(data.decode()) )
-                                    print( "Key+Secret Decrypted = " + simpleCipher( data.decode(),1,'d') )
-                                    decrypt_secret = simpleCipher( data.decode(),1,'d')
-                                    self.setClientSecret(decrypt_secret)
+                                    if self.getClientSecret() == "":
+                                        print( "Server received '{0}'".format(data.decode()) )
+                                        print( "Key+Secret Decrypted = " + simpleCipher( data.decode(),1,'d') )
+                                        decrypt_secret = simpleCipher( data.decode(),1,'d')
+                                        self.setClientSecret(decrypt_secret)
 
-                                    print( "Server sending back - 'Ready to communicate' will use client secret " + self._client_secret )
-                                    print()
-                                    #Send response using secret
-                                    secret_response = simpleCipher('Read to commnicate using secret~' + self.getClientSecret(),1,'e')
-                                    conn.sendall(secret_response.encode()) 
-                                    status == True
+                                        print( "Server sending back - 'Ready to communicate' will use client secret " + self._client_secret )
+                                        print()
+                                        #Send response using secret
+                                        secret_response = simpleCipher('Read to commnicate using secret~' + self.getClientSecret(),1,'e')
+                                        conn.sendall(secret_response.encode())                                     
+                                        status == True
+                                    else:
+                                        print( "Server received '{0}'".format(data.decode()) )
+                                        secret_response = simpleCipher('Got your msg here is my response :)~' + self.getClientSecret(),1,'e')
+                                        print("Here is my response: " + secret_response)
+                                        conn.sendall(secret_response.encode())
+
                             elif data.decode().find('VojrvfLfz') > -1:  # the word 'UniqueKey' encrypted
                                     conn.sendall(b'Recieved: ' + data.decode())
                     print("Connection closed ..")                    
