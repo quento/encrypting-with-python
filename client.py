@@ -36,13 +36,18 @@ class SimpleClient:
             # Check if response has Certificate marker in msg.
             if response_msg.find("CA:") > -1 or response_msg.find("DB:") > -1:
                 response_cert = response_msg
-                # Verify Cert. with CA
+                
                 print("Sending cert to CA server .....")
+                # Verify Cert. with CA
                 CA_status = self.checkWithCA('127.0.2.1', 9000, response_cert)
 
                 if CA_status == True:
                     print("Certificate is valid. You may proceed")
-                    print("Recieved public key for CA server...")                    
+                    print("Recieved public key for CA server...") 
+                    print("Public Key = " + self.server_public_key) 
+                    # TODO: Send Secret using "server public key"   
+                    print("Sending Secret using server public key")     
+                              
                 else:
                     print("Warning: Certificate is invalid!!!")
                 
@@ -77,6 +82,8 @@ class SimpleClient:
         """ A certificate has been received, Check with CA if it's valid """
         ca_client = SimpleClient(host, port)
         ca_response = ca_client.checkCA(cert)
+        # Bring public key over from CA server instance.
+        self.server_public_key = ca_client.server_public_key
         return ca_response
 
 def display_helper(msg):
