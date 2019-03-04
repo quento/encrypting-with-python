@@ -1,11 +1,14 @@
 import socket
 import helper
-from helper import simpleCipher
+from helper import simpleCipher, randomString
 
 class SimpleClient:
     "Simple client that communicats with a socket server."
 
     server_public_key = ""
+    # append a random string to client secret for each connection.
+    client_secret = "This is Client Secret - UniqueKey=" + randomString(10)
+
 
     def __init__( self, host = '127.0.0.1', port = 9500  ):
         self._server = host
@@ -47,12 +50,42 @@ class SimpleClient:
                     print("Public Key = " + self.server_public_key) 
                     # TODO: Send Secret using "server public key"   
                     print("Sending Secret using server public key")     
-                              
+                    
+                    encrypt_client_secret = simpleCipher( self.server_public_key + "~" + self.client_secret,1,'e' )
+                    print("Encrypted Secret = " + encrypt_client_secret)                                
+                    sock.sendall( encrypt_client_secret.encode('utf-8') ) 
                 else:
                     print("Warning: Certificate is invalid!!!")
-                
+            elif response_msg.find("VojrvfLfz") > -1:
+                print('Received secret response: ' + response_msg)
+            else:
+                print("Response not secure!!")    
         except Exception as err:    
             print("Connection Error:\n {0}".format(err))
+
+    def sendToServer(self,announce,msg):
+        """ 
+            Create a socket and send a message 
+            @msg = Message to send
+            @return: Return the response received.
+        """ 
+        response_msg = ""
+        try:
+            sock = self.create_socket()
+            sock.connect( (self._server, self._port) )            
+
+            print( announce + "...." ) 
+
+            sock.sendall( msg.encode() )
+
+            result = sock.recv( 4096 )
+
+            response_msg = result.decode()
+            
+        except Exception as err:    
+            print("Msg Send Error:\n {0}".format(err))
+        
+        return response_msg
 
     def checkCA(self, cert):
         status = False
