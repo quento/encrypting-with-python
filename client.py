@@ -58,54 +58,10 @@ class SimpleClient:
                     server_response = self.sendToServer("3. Test Secret Msg = " + encrypt_client_msg, encrypt_client_msg)   
 
                     print( '- Server response to secret msg:  ' + server_response)
-                    print( '- Server response decrypted: ' + simpleCipher(server_response,1,'d') )
-
-                
+                    print( '- Server response decrypted: ' + simpleCipher(server_response,1,'d') )                
             else:
                 print("Warning: Certificate is invalid!!!")
 
-
-        # try:
-        #     sock = self.create_socket()
-        #     sock.connect( (self._server, self._port) )
-
-        #     msg = input("Type in 'Hello' to get Hi response from server: ")
-
-        #     print('Sending msg: ', msg ) 
-
-        #     sock.sendall( msg.encode() )
-
-        #     result = sock.recv( 4096 )
-
-        #     response_msg = result.decode()
-        #     print( 'Response received: ', response_msg )
-
-        #     # Check if response has Certificate marker in msg.
-        #     if response_msg.find("CA:") > -1 or response_msg.find("DB:") > -1:
-        #         response_cert = response_msg
-                
-        #         print("Sending cert to CA server .....")
-        #         # Verify Cert. with CA
-        #         CA_status = self.checkWithCA('127.0.2.1', 9000, response_cert)
-
-        #         if CA_status == True:
-        #             print("Certificate is valid. You may proceed")
-        #             print("Recieved public key for CA server...") 
-        #             print("Public Key = " + self.server_public_key) 
-        #             # TODO: Send Secret using "server public key"   
-        #             print("Sending Secret using server public key")     
-                    
-        #             encrypt_client_secret = simpleCipher( self.server_public_key + "~" + self.client_secret,1,'e' )
-        #             print("Encrypted Secret = " + encrypt_client_secret)                                
-        #             sock.sendall( encrypt_client_secret.encode('utf-8') ) 
-        #         else:
-        #             print("Warning: Certificate is invalid!!!")
-        #     elif response_msg.find("VojrvfLfz") > -1:
-        #         print('Received secret response: ' + response_msg)
-        #     else:
-        #         print("Response not secure!!")    
-        # except Exception as err:    
-        #     print("Connection Error:\n {0}".format(err))
 
     def sendToServer(self,announce,msg):
         """ Creates a socket and send a message.
