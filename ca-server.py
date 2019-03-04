@@ -41,18 +41,20 @@ class CertServer:
                         while True:
                             data = conn.recv( 1024 )
                             msg_recieved = data.decode()
+                            cert_valid = False
                             # If msg is a certificate, check if it's valid.
-                            if msg_recieved.find("CA:") > -1 or msg_recieved.find("DB:"):
+                            if msg_recieved.find("CA:") > -1 or msg_recieved.find("DB:") > -1:
                                 print("Certificate received. Checking validity ...")
-                                if msg_recieved.find("DB:"): # encrypted msg
+                                if msg_recieved.find("DB:") > -1: # encrypted msg
                                     # Decrypt returns decrypted array
                                     decrypt_cert_and_key = simpleCipher( msg_recieved,1,'d' )
-                                    decrypt_cert_and_key_array = self.readCert(decrypted_cert_and_key)
+                                    decrypt_cert_and_key_array = self.readCert(decrypt_cert_and_key)
                                     server_cert = decrypt_cert_and_key_array[0]
                                     server_public_key = decrypt_cert_and_key_array[1]
                                     # TODO: Extract Cert and Public Key
 
-                                cert_valid = self.checkCertValidity(server_cert)     
+                                    cert_valid = self.checkCertValidity(server_cert)     
+                                    
                                 if cert_valid == True:
                                     print( "Server received a VALID certificate '{0}'".format(data.decode()) )
                                     print( "Server sending back - Server's Public Key...." )                 
@@ -98,16 +100,12 @@ class CertServer:
     def decrypt_cert(self,encrypted_cert):
         return simpleCipher( encrypted_cert,1,'d')
 
-    def readCert(self,cert,shift):
+    def readCert(self,cert):
         """ Read certificate and seperate public key from certificate.
             @return = Returns an array with cert and public key.
         """
         
-        cert_array = cert.split("~")
-        server_cert = cert_array[0]
-        server_public_key = cert_array[1]
-        
-        return cert_array
+        return cert.split("~")        
 
     def shutdown_server( self ):
         exit_input = input("Do you want to exit/shutdown the server (y/n): ")
