@@ -1,6 +1,6 @@
 import socket
 import helper
-from helper import ceasarCipher
+from helper import simpleCipher
 
 class CertServer:
     """
@@ -42,13 +42,22 @@ class CertServer:
                             data = conn.recv( 1024 )
                             msg_recieved = data.decode()
                             # If msg is a certificate, check if it's valid.
-                            if msg_recieved.find("CA:") > -1:
+                            if msg_recieved.find("CA:") > -1 or msg_recieved.find("DB:"):
                                 print("Certificate received. Checking validity ...")
-                                cert_valid = self.checkCertValidity(msg_recieved)     
+                                if msg_recieved.find("DB:"): # encrypted msg
+                                    # Decrypt returns decrypted array
+                                    decrypt_cert_and_key = simpleCipher( msg_recieved,1,'d' )
+                                    decrypt_cert_and_key_array = self.readCert(decrypted_cert_and_key)
+                                    server_cert = decrypt_cert_and_key_array[0]
+                                    server_public_key = decrypt_cert_and_key_array[1]
+                                    # TODO: Extract Cert and Public Key
+
+                                cert_valid = self.checkCertValidity(server_cert)     
                                 if cert_valid == True:
                                     print( "Server received a VALID certificate '{0}'".format(data.decode()) )
-                                    print( "Server sending back - Server's Public Key...." )                                    
-                                    conn.sendall(b'Cert Public Key...')  
+                                    print( "Server sending back - Server's Public Key...." )                 
+                                    # TODO: Send public key of Certificate.                   
+                                    conn.sendall(server_public_key.encode())  
                                 else:
                                     print( "Server received INVALID '{0}'".format(data.decode()) )
                                     print( "Server sending back - 'False' response" )
@@ -75,7 +84,7 @@ class CertServer:
         
         print("Server shutting down ...")
         sock.close()
-    
+        
     def checkCertValidity(self, cert):
         """ Check if mock certificate is valid """
 
@@ -86,21 +95,19 @@ class CertServer:
         
         return cert_validity
    
+    def decrypt_cert(self,encrypted_cert):
+        return simpleCipher( encrypted_cert,1,'d')
+
     def readCert(self,cert,shift):
-        """ Check server certificate. If valid, return true. If not return false """
+        """ Read certificate and seperate public key from certificate.
+            @return = Returns an array with cert and public key.
+        """
         
-        server_cert = "I am Simple Server"
-
-        decipher_cert = ceasarCipher(cert, -shift)
+        cert_array = cert.split("~")
+        server_cert = cert_array[0]
+        server_public_key = cert_array[1]
         
-        result = False
-        
-        if server_cert == decipher_cert:
-            result = True
-        else:
-            result = False
-
-        return result
+        return cert_array
 
     def shutdown_server( self ):
         exit_input = input("Do you want to exit/shutdown the server (y/n): ")
