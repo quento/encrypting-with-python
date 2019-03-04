@@ -1,7 +1,11 @@
 import socket
+import helper
+from helper import simpleCipher
 
 class SimpleClient:
     "Simple client that communicats with a socket server."
+
+    server_public_key = ""
 
     def __init__( self, host = '127.0.0.1', port = 9500  ):
         self._server = host
@@ -30,7 +34,7 @@ class SimpleClient:
             print( 'Response received: ', response_msg )
 
             # Check if response has Certificate marker in msg.
-            if response_msg.find("CA:") > -1:
+            if response_msg.find("CA:") > -1 or response_msg.find("DB:") > -1:
                 response_cert = response_msg
                 # Verify Cert. with CA
                 print("Sending cert to CA server .....")
@@ -62,6 +66,7 @@ class SimpleClient:
 
             if response_msg != 'INVALID':
                 status = True
+                self.server_public_key = response_msg
             
         except Exception as err:    
             print("CheckCA() Connection Error:\n {0}".format(err))
